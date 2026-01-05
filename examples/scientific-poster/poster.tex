@@ -1,0 +1,247 @@
+% LA4SR Scientific Poster - 48" x 36" Landscape
+% Compile with: tectonic poster.tex
+\documentclass[20pt, paperwidth=48in, paperheight=36in, landscape]{tikzposter}
+
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{url}
+\usepackage{qrcode}
+\usepackage{fontspec}
+\setmainfont{texgyreheros}[
+    Extension = .otf,
+    UprightFont = *-regular,
+    BoldFont = *-bold,
+    ItalicFont = *-italic,
+    BoldItalicFont = *-bolditalic
+]
+
+% Colors
+\definecolor{NYUviolet}{RGB}{87, 6, 140}
+
+% White background theme
+\usetheme{Default}
+\definecolorstyle{WhiteStyle}{
+    \definecolor{colorOne}{RGB}{87, 6, 140}
+}{
+    \colorlet{backgroundcolor}{white}
+    \colorlet{framecolor}{NYUviolet}
+    \colorlet{titlefgcolor}{black}
+    \colorlet{titlebgcolor}{white}
+    \colorlet{blocktitlebgcolor}{NYUviolet}
+    \colorlet{blocktitlefgcolor}{white}
+    \colorlet{blockbodybgcolor}{white}
+    \colorlet{blockbodyfgcolor}{black}
+}
+\usecolorstyle{WhiteStyle}
+
+% Large title on one line, no box, thin margins
+\definetitlestyle{MinimalTitle}{
+    width=\paperwidth, linewidth=0pt, titletotopverticalspace=5mm, titletoblockverticalspace=10mm
+}{
+    % No border drawing
+}
+\usetitlestyle{MinimalTitle}
+
+\settitle{
+    \centering
+    {\fontsize{90}{95}\selectfont\bfseries \@title}\\[0.3em]
+    {\large\@author}\\[0.2em]
+    {\normalsize\@institute}
+}
+
+\defineblockstyle{CleanBlock}{
+    titlewidthscale=1, bodywidthscale=1, titleleft,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=5, linewidth=2pt,
+    titleinnersep=3mm, bodyinnersep=4mm
+}{
+    \begin{scope}[line width=\blocklinewidth, rounded corners=\blockroundedcorners]
+        \ifBlockHasTitle
+            \draw[fill=blockbodybgcolor, draw=framecolor]
+                (blockbody.south west) rectangle (blocktitle.north east);
+            \draw[fill=blocktitlebgcolor, draw=framecolor]
+                (blocktitle.south west) rectangle (blocktitle.north east);
+        \else
+            \draw[fill=blockbodybgcolor, draw=framecolor]
+                (blockbody.south west) rectangle (blockbody.north east);
+        \fi
+    \end{scope}
+}
+\useblockstyle{CleanBlock}
+
+% Metadata
+\title{Pan-Microalgal Dark Proteome Mapping via Interpretable Deep Learning}
+\author{David R. Nelson\textsuperscript{1,5}, Ashish Kumar Jaiswal\textsuperscript{1}, Noha Samir Ismail\textsuperscript{1,2}, Alexandra Mystikou\textsuperscript{1,3,4}, Kourosh Salehi-Ashtiani\textsuperscript{1}}
+\institute{\textsuperscript{1}A2S2 Group, \textbf{New York University Abu Dhabi} \quad \textsuperscript{2}Dept.\ Biology, NYU \quad \textsuperscript{3}Technology Innovation Institute \quad \textsuperscript{4}M42 Health \quad \textsuperscript{5}Lead contact \quad drn2@nyu.edu \quad {\textbf{Nelson et al., \textit{Patterns} (2025)}}}
+
+\begin{document}
+\maketitle
+
+\begin{columns}
+
+% COLUMN 1 - Text + Figure 3
+\column{0.18}
+
+\block{Executive Summary}{
+    \small
+    \textbf{Problem:} 65\% of microalgal proteins lack detectable homology---the ``dark proteome.'' Traditional methods fail when proteins are too evolutionarily distant, creating a bottleneck: we generate data faster than we can interpret it.
+
+    \textbf{Solution:} \textbf{LA4SR} (Language modeling with AI for algal Amino acid Sequence Representation)---transformer and state-space models trained on $\sim$77M sequences from 166 genomes across 10 phyla.
+
+    \textbf{Decision rule:}
+    \[
+    \hat{y} = \arg\max_{y \in \{\text{algal, bacterial}\}} p(y|x;\theta)
+    \]
+    where $x = (a_1, \ldots, a_L)$ is the query amino acid sequence, $\theta$ are learned parameters, and $\hat{y}$ is the predicted class.
+
+    \textbf{Result:} \textbf{>99\% recall}, \textbf{10,701$\times$ speedup}:
+    \[
+    \text{Speedup} = \frac{T_{\text{BLASTP}}}{T_{\text{LA4SR}}} = \frac{535\text{s}}{0.038\text{s}}
+    \]
+}
+
+\block{The Bigger Picture}{
+    \small
+    Microbes drive Earth's energy flow, yet most proteins remain uncharacterized. Microalgae underpin aquatic food webs, carbon capture, and biofuels---yet \textbf{65\% form the ``dark proteome''}.
+
+    \textbf{Why traditional methods fail:}
+    \begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+        \item BLAST too slow for genome-scale analysis
+        \item Novel sequences lack database matches
+        \item Microalgal proteomes: domain shuffling, splicing, serial endosymbioses
+    \end{itemize}
+
+    \textbf{LA4SR paradigm shift:} Language models learn patterns directly from sequences, enabling classification without alignment.
+
+    \textbf{Zero-shot transfer:} Pre-training on The Pile (PubMed, GitHub) embeds latent biological knowledge. After only 50 post-training steps, models began correctly distinguishing algal from bacterial sequences---before explicit fine-tuning.
+}
+
+\block{How Transformers Process Protein Sequences}{
+    \small
+    \textbf{Why transformers for proteins?} Unlike ESM/ProtTrans (trained on proteins), LA4SR repurposes \textit{general-purpose} LLMs pre-trained on text corpora containing PubMed and code---biological priors transfer implicitly without protein-specific training.
+
+    \textbf{Step 1---Tokenization:} The input sequence $x = (\text{M}, \text{K}, \text{T}, \text{L}, \ldots)$ is converted to integer IDs: $[4, 11, 16, 12, \ldots]$
+
+    \textbf{Step 2---Embedding lookup:} Each ID retrieves a learned $d$-dimensional vector from a matrix $E \in \mathbb{R}^{|\Sigma| \times d}$:
+    \[
+    e_i = E[x_i] \in \mathbb{R}^d, \quad d = 512\text{--}4096
+    \]
+    These vectors encode semantic meaning---similar amino acids cluster together.
+
+    \textbf{Step 3---Self-attention:} The model computes which positions ``attend to'' others via Query-Key-Value:
+    \[
+    \text{Attention}(Q,K,V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+    \]
+    This allows distant residues to influence each other's representations.
+
+    \textbf{Step 4---Layer stacking:} Multiple transformer layers ($L$=6--32) progressively refine representations, building from local patterns to global sequence features.
+}
+
+\block{Visualizing Learned Representations}{
+    \includegraphics[width=\linewidth]{figures/FIGURE_3-UMAP-tSNE-bacterial-20MAY2025.pdf}
+
+    \small
+    \textbf{Problem:} Embeddings live in 512--4096 dimensions---impossible to visualize directly. \textbf{Solution:} Dimensionality reduction to 2D.
+
+    \textbf{(A) t-SNE} preserves \textit{local} neighborhoods by minimizing KL divergence between high-D and low-D pairwise similarities $\rightarrow$ tight, circular clusters per amino acid type.
+
+    \textbf{(B) UMAP} preserves both local \textit{and global} topology via fuzzy set theory $\rightarrow$ elongated arcs revealing continuous biochemical gradients (hydrophobicity, charge, size).
+
+    \textbf{Key finding:} The model implicitly learned physicochemical properties from sequence statistics alone---no explicit biochemical labels were provided.
+}
+
+% COLUMN 2 - Methodology + Figure 1 + Figure 4
+\column{0.27}
+
+\block{Methodology}{
+    \small
+    \textbf{Dataset:} tORFeomes from 166 microalgal genomes across 10 phyla (Chlorophyta, Rhodophyta, Haptophyta, Cercozoa, Ochrophyta, Myzozoa, Euglenophyta, Arachniophyta, Streptophyta, Chromerida) generated via SNAP gene prediction. Combined 1:1 with bacterial/archaeal/fungal contaminants: 58.7M sequences (TI-free) and 17.9M sequences (TI-inclusive).
+
+    \textbf{Two Training Regimes:} \textit{TI-inclusive}---full-length natural sequences with intact N/C-termini. \textit{TI-free}---sequences stripped of headers, concatenated into ``unisequence,'' fragmented into fixed 100-aa windows, then shuffled to eliminate terminal and gene-boundary information, creating synthetic chimeras.
+
+    \textbf{Architectures:} \textit{Transformers:} Pythia (70M--7B), GPT-NeoX (125M), Mistral (7B). \textit{State-space:} Mamba S6 (370M--2.8B). \textit{Bidirectional:} DistilRoBERTa (82M)---eliminated terminal bias but lower contaminant recall.
+
+    \textbf{Training:} Models $<$300M pre-trained from scratch via architecture mimicry; models $\geq$300M fine-tuned with LoRA/QLoRA (8-bit). Mixed-precision FP16 (Mamba: FP32). AdamW optimizer, lr=$10^{-4}$, cosine scheduler, 2000 warmup steps. Batch size 64--96; gradient accumulation 8--32 steps. $\sim$96 GPU-hours per model on NVIDIA A100.
+
+    \textbf{Tokenization:} Character-level (ByT5) vs.\ subword (GPT-NeoX) showed $<$1\% accuracy difference; character-level enabled cleaner per-residue attribution.
+
+    \textbf{Best Model:} 370M Mamba---optimal efficiency at 300--400M parameters. Larger models showed marginal gains with substantial runtime cost.
+}
+
+\block{Evolutionary Context \& Speed}{
+    \includegraphics[width=\linewidth]{figures/FIGURE_1-12JUL2025.pdf}
+
+    \small
+    \textbf{(A--D)} Microalgal proteomes across 10 phyla shaped by serial endosymbioses and domain shuffling. Protein-length distributions show phylum-specific patterns. \textbf{(E--F)} Benchmarking on NVIDIA A100 GPU vs.\ AMD EPYC CPU: LA4SR 0.038$\pm$0.003s vs.\ BLASTP+ 535$\pm$2056s per query. Inference time invariant to sequence length, unlike BLAST's non-linear runtime penalties.
+}
+
+\block{DeepLift Attribution}{
+    \includegraphics[width=\linewidth]{figures/FIGURE_4-DeepLift-30MAY2025.pdf}
+
+    \small
+    Per-residue attribution via DeepLift: $A = \sum(\text{DL}(x, x_0))$ computed in windows ($w$=32, stride=16). \textbf{TI-free:} uniform scores across positions. \textbf{TI-inclusive:} terminal spikes near sequence ends. \textbf{Glutamine} (AT-rich codons, enriched in disordered regions) and \textbf{Glycine} (GC-rich codons, structural flexibility) dominated---the model leverages both compositional and structural cues.
+}
+
+% COLUMN 3 - Figure 2 + Figure 5
+\column{0.27}
+
+\block{Model Performance}{
+    \includegraphics[width=\linewidth]{figures/FIGURE_2-12JUL2025.pdf}
+
+    \small
+    \textbf{(A)} Transformer (GPT-NeoX, Mistral, Pythia) \& S6 Mamba architectures. Best: 370M Mamba, F$_1$=0.98. Models $>$300M parameters reached F$_1$$>$0.88 training on $<$2\% of available data. \textbf{(B)} LA4SR classified $>$99\% of dark proteome vs.\ $\sim$35\% for BLAST. \textbf{(C--E)} TI-free models matched TI-inclusive performance: \textbf{internal sequence features alone drive robust classification}.
+}
+
+\block{Motif Attribution (DMMP)}{
+    \includegraphics[width=\linewidth]{figures/FIGURE_5-MOTIFS_20250428.pdf}
+
+    \small
+    \textbf{Deep Motif Miner Pro (DMMP):} Class separation index $I(a,i) = \|\mu_{a,i} - \mu_{\neg a,i}\|_2$ quantifies how far each residue's embedding departs from background. High-influence sites ($>$95th percentile) are extended into 5--9 residue motifs. Sharp increases at residues 29--34 indicate a ``hotspot'' where discriminative patterns concentrate.
+}
+
+% COLUMN 4 - Figure 6 + Figure 7 + Methodology + Key Contributions
+\column{0.28}
+
+\block{Motif-to-Function Mapping}{
+    \includegraphics[width=\linewidth]{figures/FIGURE_6-DMMP-mappingPFAM-GO-12MAY2025.pdf}
+
+    \small
+    \textbf{PFAM-A Enrichment:} 60.8M motif-domain pairs collapsed to 65 unique PFAMs (top 10K) and 335 PFAMs (top 100K). \textit{Signaling:} C2H2 zinc fingers (PF00096), Ras GTPases (PF00071), protein kinases (PF00069). \textit{Transport:} ABC (PF00005), MFS permeases (PF07690). \textit{Metabolism:} P450s (PF00067), dehydrogenases (PF00106). \textbf{Reactome enrichment:} nucleotide metabolism, phosphorylation cascades.
+}
+
+\block{Layer-wise Feature Evolution}{
+    \includegraphics[width=\linewidth]{figures/FIGURE_7-Lettered_AA_layer_outputs-05MAY2025.pdf}
+
+    \small
+    \textbf{HELIX:} Layer-wise PCA of hidden states $H^{(\ell)} \in \mathbb{R}^{n \times d}$ via SVD: $Z^{(\ell)} = H^{(\ell)} V^{(\ell)}_{:,1:2}$. Progressive complexity increase from layer 0$\rightarrow$5; tight clustering by layer 3, maximal class separation at layer 5. \textbf{Methionine} central (initiator codon); \textbf{Cysteine} peripheral (unique redox/disulfide roles).
+}
+
+\block{Key Contributions \& Resources}{
+    \small
+    \begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+        \item \textbf{10,701$\times$ faster} than BLASTP+
+        \item \textbf{>99\% recall} on dark proteome
+        \item Internal features sufficient---no termini needed
+        \item Open-source: HELIX, DMMP, DeepLift LA4SR
+    \end{itemize}
+
+    \begin{minipage}[t]{0.55\linewidth}
+        \small
+        \textbf{Data:} Zenodo 10.5281/13920000\\
+        \textbf{Models:} Hugging Face\\
+        \small NYUAD Research Funds (AD060)
+    \end{minipage}%
+    \hfill
+    \begin{minipage}[t]{0.40\linewidth}
+        \centering
+        \qrcode[height=1in]{https://doi.org/10.1016/j.patter.2025.101234}\\
+        \small Full Paper
+    \end{minipage}
+}
+
+\end{columns}
+
+\end{document}

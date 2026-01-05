@@ -30,6 +30,12 @@ tectonic --bundle https://data1.fullyjustified.net/tlextras-2023.1r0.tar documen
 - [Best Practices](docs/best-practices.md)
 - [Package Compatibility](docs/package-compatibility.md)
 - [Workflow Tips](docs/workflow-tips.md)
+- [Spacing and Floats](docs/spacing-and-floats.md)
+- **[Scientific Posters](docs/scientific-posters.md)** - tikzposter guide with visual feedback loop
+
+## Examples
+
+- [`examples/scientific-poster/`](examples/scientific-poster/) - 48"x36" research poster template with custom styling
 
 ## Why Tectonic?
 
