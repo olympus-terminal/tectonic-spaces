@@ -1,0 +1,16 @@
+# OS files
+.DS_Store
+.claude/
+
+# Large output files
+*.pdf
+*_preview.png
+
+# Project-specific files (not for public repo)
+manuscript.txt
+CLAUDE.md
+*_TODO.md
+*.jpg
+
+# Keep example figures
+!examples/
