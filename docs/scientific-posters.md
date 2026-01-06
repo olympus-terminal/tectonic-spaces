@@ -190,6 +190,86 @@ tectonic poster.tex && pdftoppm -png -r 75 -singlefile poster.pdf poster_preview
 
 The `-r 75` flag sets 75 DPI, producing a ~3600x2700px preview suitable for quick checks without generating massive files.
 
+## Wrapping Text Around QR Codes / Images
+
+Getting text to wrap tightly around QR codes or small images in tikzposter can be tricky. Here's what works and what doesn't:
+
+### What Doesn't Work
+
+**Inline with `\hfill`:**
+```latex
+\textbf{Funding:} NYUAD Research Funds.%
+\hfill%
+\begin{tabular}[t]{cc}
+    \includegraphics[height=0.6in]{qrcode.png} \\
+    \scriptsize Label
+\end{tabular}
+```
+Result: Creates a large horizontal gap between text and QR code.
+
+**Side-by-side minipages:**
+```latex
+\begin{minipage}[t]{0.6\linewidth}
+    Text here...
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.35\linewidth}
+    \centering
+    \includegraphics[height=0.6in]{qrcode.png}
+\end{minipage}
+```
+Result: Text doesn't wrap; leaves vertical whitespace.
+
+**Centered tabular:**
+```latex
+\begin{center}
+\begin{tabular}{cc}
+    \includegraphics[height=0.6in]{qr1.png} &
+    \includegraphics[height=0.6in]{qr2.png} \\
+    \scriptsize Label 1 & \scriptsize Label 2
+\end{tabular}
+\end{center}
+```
+Result: QR codes centered with large vertical gaps above/below.
+
+### What Works: `wrapfigure`
+
+Add the package:
+```latex
+\usepackage{wrapfig}
+```
+
+Then use `wrapfigure` to float the QR codes to the right:
+```latex
+\begin{wrapfigure}{r}{1.6in}
+\vspace{-12pt}
+\centering
+\begin{tabular}{@{}c@{\hspace{3pt}}c@{}}
+    \includegraphics[height=0.6in]{qrcode_models.png} &
+    \includegraphics[height=0.6in]{qrcode_paper.png} \\[-2pt]
+    \scriptsize Models & \scriptsize Full Paper
+\end{tabular}
+\vspace{-10pt}
+\end{wrapfigure}
+\textbf{Open-Source Suite:} Description here...
+\textbf{Data:} Zenodo link.
+\textbf{Models:} Hugging Face.
+\textbf{Code:} GitHub.
+\textbf{Funding:} Grant info.
+```
+
+**Key points:**
+- `{r}` = float to right side
+- `{1.6in}` = width allocated for the wrapped content
+- `\vspace{-12pt}` at top removes extra space above QR codes
+- `\vspace{-10pt}` at bottom tightens space below
+- `@{}` in tabular removes column padding
+- `@{\hspace{3pt}}` adds minimal gap between QR codes
+- `\\[-2pt]` reduces space between QR codes and labels
+- Text following `\end{wrapfigure}` automatically wraps around
+
+This produces tight text wrapping with QR codes floating to the right, labels underneath, and no wasted whitespace.
+
 ## Common Issues
 
 ### Content Overflow
