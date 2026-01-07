@@ -296,6 +296,54 @@ warning: Trying to include PDF file with version (1.6), newer than output (1.5)
 
 This warning is harmless; the PDF will render correctly.
 
+### Missing Elements in PDF Figures (Colormap Legends, Transparency Issues)
+
+Sometimes PDF figures exported from plotting libraries or Adobe Illustrator have missing elements (colormap legends, transparent overlays) when compiled with Tectonic. This is often due to PDF transparency or non-conforming PDF structure.
+
+**Symptoms:**
+- Colormap/colorbar legends disappear
+- Transparent elements render incorrectly
+- Figure appears correct in Preview.app but not in compiled poster
+
+**Solution: Ghostscript + PNG Workaround**
+
+The fix involves two steps: (1) reprocess with Ghostscript to fix transparency/font issues, then (2) render to PNG to avoid rotation problems that Ghostscript can introduce.
+
+```bash
+# Install tools (macOS)
+brew install ghostscript poppler
+
+# Step 1: Reprocess PDF with Ghostscript
+gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite \
+   -dCompatibilityLevel=1.5 \
+   -dEmbedAllFonts=true \
+   -dSubsetFonts=true \
+   -dAutoRotatePages=/None \
+   -dPDFSETTINGS=/prepress \
+   -sOutputFile=figure-gs.pdf figure-original.pdf
+
+# Step 2: Render to high-res PNG (Ghostscript often introduces rotation)
+pdftoppm -png -r 300 -singlefile figure-gs.pdf figure-fixed
+```
+
+Then include the PNG instead of the PDF:
+```latex
+\includegraphics[width=\linewidth]{figures/figure-fixed.png}
+```
+
+**Why this works:**
+- Ghostscript repairs non-conforming PDF structures and re-embeds fonts
+- However, Ghostscript can change internal page rotation in ways that `xdvipdfmx` (Tectonic's PDF handler) interprets incorrectly
+- Rendering to PNG "flattens" everything, bypassing rotation metadata issues
+- 300 DPI is sufficient for large-format poster printing
+
+**What doesn't work:**
+- `qpdf --rotate` - only affects page-level rotation, not content matrix
+- LaTeX `angle=90` parameter - sizing becomes problematic after rotation
+- `-dAutoRotatePages=/None` alone - rotation is embedded in content stream
+
+**Note:** This trades vector graphics for raster, which is acceptable for figures but not ideal for text-heavy content. For most scientific figures at 300 DPI on a 48" poster, quality is indistinguishable from vector.
+
 ## Example
 
 See `examples/scientific-poster/` for a complete working example.
