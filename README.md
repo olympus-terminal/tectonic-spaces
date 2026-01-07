@@ -30,6 +30,7 @@ tectonic --bundle https://data1.fullyjustified.net/tlextras-2023.1r0.tar documen
 - [Best Practices](docs/best-practices.md)
 - [Package Compatibility](docs/package-compatibility.md)
 - [Workflow Tips](docs/workflow-tips.md)
+- [TikZ Scientific Diagrams](docs/tikz-diagrams.md) - Publication-quality flowcharts
 
 ## Why Tectonic?
 
