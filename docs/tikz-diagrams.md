@@ -195,4 +195,82 @@ Features:
 - 3 parallel analysis branches
 - Technical annotations (thresholds, gene counts)
 - Color-coded sections
-- Side statistics panel
+
+---
+
+## Lessons Learned: Iterative Refinement
+
+### What Worked
+
+1. **Start simple, add complexity gradually**
+   - Begin with basic structure (boxes + arrows)
+   - Add content incrementally
+   - Test after each change
+
+2. **Equal-height boxes for parallel elements**
+   ```latex
+   \node[box, minimum height=11mm, minimum width=22mm, anchor=north] ...
+   ```
+   - Use `anchor=north` to align tops
+   - Explicit `minimum height` prevents uneven rows
+
+3. **Single split point for branching arrows**
+   ```latex
+   \coordinate (split) at ($(parent.south)+(0,-2mm)$);
+   \draw[arr] (parent.south) -- (split) -| (childA.north);
+   \draw[arr] (split) -- (childB.north);
+   \draw[arr] (split) -| (childC.north);
+   ```
+   - Cleaner than three separate arrows from parent
+
+4. **Diagonal converging arrows**
+   ```latex
+   \draw[arr] (branchA.south) -- ($(target.north west)+(2mm,0)$);
+   ```
+   - Avoids awkward L-shaped paths
+   - More visually appealing than `|-` or `-|`
+
+### What Failed
+
+1. **Adding too much detail at once**
+   - Temporal cascade + splicing details + dysregulated pathways = FUBAR
+   - Layout became sprawling and unmanageable
+   - Elements overlapped, text got clipped
+
+2. **Automated agents making too many changes**
+   - 8 iterations without human review = drift
+   - Each "fix" introduced new problems
+   - Lost sight of overall layout coherence
+
+3. **Complex nested structures**
+   - Tables inside nodes often overflow
+   - `text width` constraints cause clipping
+   - Better to keep node content simple
+
+### Best Practices
+
+1. **One change at a time** - compile and view after each edit
+2. **Keep content minimal** - details go in manuscript, not diagram
+3. **Test arrow paths visually** - what looks good in code may overlap
+4. **Use explicit spacing** - `below=3mm` not `below` (default varies)
+5. **Balance up/down content** - don't just show what's downregulated
+6. **Revert early** - if layout breaks, go back to last working version
+
+### Spacing Guidelines (CROCIN diagram)
+
+| Element | Spacing |
+|---------|---------|
+| Between linear flow boxes | 3mm |
+| Before branch split | 3.5mm + 2mm coordinate drop |
+| Between branches (horizontal) | 24mm from center |
+| Before converging target | 3mm |
+| Arrow head clearance | ~2mm minimum |
+
+### Color Scheme
+
+```latex
+\definecolor{expcolor}{RGB}{255, 248, 240}    % Warm cream - experimental
+\definecolor{proccolor}{RGB}{235, 242, 255}   % Light blue - processing
+\definecolor{analycolor}{RGB}{240, 252, 240}  % Light green - analysis
+\definecolor{resultcolor}{RGB}{255, 250, 242} % Cream - results
+```
