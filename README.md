@@ -1,6 +1,6 @@
 # Tectonic Notes
 
-Personal documentation of struggles, solutions, and best practices for using [Tectonic](https://tectonic-typesetting.github.io/) - the modernized, self-contained LaTeX engine.
+Documentation of issues, solutions, and best practices for using [Tectonic](https://tectonic-typesetting.github.io/) - the modernized, self-contained LaTeX engine.
 
 ## Environment
 
