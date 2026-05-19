@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner.png" alt="tectonic-spaces banner" width="100%">
+</p>
+
 # Tectonic Usage Solutions
 
 Documentation of issues, solutions, and best practices for using [Tectonic](https://tectonic-typesetting.github.io/) - the modernized, self-contained LaTeX engine.
